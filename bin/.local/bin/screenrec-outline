@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+"""Draw a click-through outline just outside a screen region.
+
+Usage: screenrec-outline "X,Y WxH"   (slurp's format, layout coordinates)
+
+The line sits outside the region, so it doesn't end up in the recording.
+Runs until killed.
+"""
+import signal
+import sys
+import time
+
+import gi
+
+gi.require_version("Gtk", "3.0")
+gi.require_version("Gdk", "3.0")
+gi.require_version("GtkLayerShell", "0.1")
+import cairo  # noqa: E402
+from gi.repository import Gdk, GLib, Gtk, GtkLayerShell  # noqa: E402
+
+LINE = 3  # px
+GAP = 2   # px between the region and the line
+COLOR = (0.9, 0.2, 0.2, 0.9)
+
+
+def parse(geom):
+    pos, size = geom.split()
+    x, y = (int(v) for v in pos.split(","))
+    w, h = (int(v) for v in size.split("x"))
+    return x, y, w, h
+
+
+def main():
+    x, y, w, h = parse(sys.argv[1])
+    display = Gdk.Display.get_default()
+
+    # The monitor that contains the region's top-left corner
+    monitor, origin = None, (0, 0)
+    for i in range(display.get_n_monitors()):
+        m = display.get_monitor(i)
+        g = m.get_geometry()
+        if g.x <= x < g.x + g.width and g.y <= y < g.y + g.height:
+            monitor, origin = m, (g.x, g.y)
+            break
+
+    win = Gtk.Window()
+    GtkLayerShell.init_for_window(win)
+    GtkLayerShell.set_layer(win, GtkLayerShell.Layer.OVERLAY)
+    GtkLayerShell.set_namespace(win, "screenrec-outline")
+    GtkLayerShell.set_exclusive_zone(win, -1)
+    GtkLayerShell.set_keyboard_mode(win, GtkLayerShell.KeyboardMode.NONE)
+    for edge in (GtkLayerShell.Edge.TOP, GtkLayerShell.Edge.BOTTOM,
+                 GtkLayerShell.Edge.LEFT, GtkLayerShell.Edge.RIGHT):
+        GtkLayerShell.set_anchor(win, edge, True)
+    if monitor:
+        GtkLayerShell.set_monitor(win, monitor)
+
+    win.set_app_paintable(True)
+    visual = win.get_screen().get_rgba_visual()
+    if visual:
+        win.set_visual(visual)
+
+    rx, ry = x - origin[0], y - origin[1]
+    off = GAP + LINE / 2
+    start = time.monotonic()
+
+    def draw(widget, cr):
+        cr.set_operator(cairo.OPERATOR_SOURCE)
+        cr.set_source_rgba(0, 0, 0, 0)
+        cr.paint()
+        cr.set_operator(cairo.OPERATOR_OVER)
+        cr.set_source_rgba(*COLOR)
+        cr.set_line_width(LINE)
+        cr.rectangle(rx - off, ry - off, w + 2 * off, h + 2 * off)
+        cr.stroke()
+
+        # Timer pill under the outline (above it if there's no room below)
+        secs = int(time.monotonic() - start)
+        text = "● REC %d:%02d" % (secs // 60, secs % 60)
+        if secs >= 3600:
+            text = "● REC %d:%02d:%02d" % (secs // 3600, secs // 60 % 60, secs % 60)
+        cr.select_font_face("monospace", cairo.FONT_SLANT_NORMAL,
+                            cairo.FONT_WEIGHT_BOLD)
+        cr.set_font_size(13)
+        ext = cr.text_extents(text)
+        pad, ph = 8, 22
+        pw = ext.width + 2 * pad
+        px = rx - GAP - LINE
+        below = ry + h + GAP + LINE + 4
+        py = below if below + ph <= widget.get_allocated_height() \
+            else ry - GAP - LINE - 4 - ph
+        cr.set_source_rgba(*COLOR)
+        cr.rectangle(px, py, pw, ph)
+        cr.fill()
+        cr.set_source_rgba(1, 1, 1, 1)
+        cr.move_to(px + pad - ext.x_bearing, py + ph / 2 - ext.y_bearing - ext.height / 2)
+        cr.show_text(text)
+        return False
+
+    def tick():
+        win.queue_draw()
+        return True
+
+    GLib.timeout_add(500, tick)
+
+    def make_click_through(_widget):
+        win.input_shape_combine_region(cairo.Region())
+
+    win.connect("draw", draw)
+    win.connect("realize", make_click_through)
+    win.connect("destroy", Gtk.main_quit)
+    win.show_all()
+
+    signal.signal(signal.SIGTERM, lambda *_: Gtk.main_quit())
+    signal.signal(signal.SIGINT, lambda *_: Gtk.main_quit())
+    Gtk.main()
+
+
+if __name__ == "__main__":
+    main()

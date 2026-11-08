@@ -1,0 +1,8 @@
+# tmux plugins are their own git repos, installed by tpm (prefix + I)
+tmux/.tmux/plugins/
+
+# editor/backup leftovers
+*.bak
+*~
+*.swp
+__pycache__/

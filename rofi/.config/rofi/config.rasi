@@ -1,0 +1,104 @@
+configuration {
+    modi: "combi,drun,run";
+    combi-modes: [ drun, run ];
+    combi-hide-mode-prefix: true;
+    show-icons: true;
+    display-combi: "";
+    display-drun: "apps";
+    display-run: "run";
+    drun-display-format: "{name}";
+    terminal: "kitty";
+}
+
+* {
+    bg:      #1b1b1b;
+    bg-hi:   #2e2e2e;
+    fg:      #d4d4d4;
+    fg-dim:  #7c7c7c;
+    line:    #3a3a3a;
+    crit:    #c04a4a;
+
+    font: "JetBrainsMono Nerd Font 11";
+    background-color: transparent;
+    text-color: @fg;
+}
+
+window {
+    width: 600px;
+    location: center;
+    background-color: @bg;
+    border: 1px;
+    border-color: @line;
+    padding: 0;
+}
+
+mainbox {
+    children: [ inputbar, listview ];
+    spacing: 0;
+}
+
+inputbar {
+    children: [ prompt, entry ];
+    padding: 10px 12px;
+    spacing: 10px;
+    border: 0 0 1px 0;
+    border-color: @line;
+}
+
+prompt {
+    text-color: @fg-dim;
+}
+
+entry {
+    placeholder: "search";
+    placeholder-color: @fg-dim;
+    text-color: @fg;
+    cursor: text;
+}
+
+listview {
+    lines: 8;
+    columns: 1;
+    fixed-height: true;
+    scrollbar: false;
+    spacing: 0;
+}
+
+element {
+    padding: 6px 12px;
+    spacing: 10px;
+    border: 0 0 0 2px;
+    border-color: transparent;
+}
+
+element normal.normal,
+element alternate.normal {
+    background-color: transparent;
+    text-color: @fg;
+}
+
+element selected.normal {
+    background-color: @bg-hi;
+    border-color: @fg;
+    text-color: #ffffff;
+}
+
+element normal.urgent,
+element alternate.urgent,
+element selected.urgent {
+    background-color: @crit;
+}
+
+element-icon {
+    size: 18px;
+    vertical-align: 0.5;
+}
+
+element-text {
+    vertical-align: 0.5;
+    text-color: inherit;
+}
+
+message {
+    padding: 8px 12px;
+}

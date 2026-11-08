@@ -1,0 +1,22 @@
+#!/bin/sh
+# Toggle screen recording. Usage: screenrec-toggle [area|full]
+# Area recordings get a red outline around the region while recording.
+if pgrep -x wf-recorder >/dev/null; then
+    pkill -INT -x wf-recorder   # the running instance below cleans up
+    exit 0
+fi
+command -v wf-recorder >/dev/null || { notify-send "wf-recorder not installed"; exit 1; }
+out="$HOME/Videos/rec-$(date +%F-%H%M%S).mp4"
+
+if [ "$1" = full ]; then
+    notify-send "Recording started (full screen)"
+    wf-recorder -f "$out"
+else
+    geom=$(slurp) || exit 0
+    "$(dirname "$0")/screenrec-outline" "$geom" &
+    outline=$!
+    notify-send "Recording started (area)"
+    wf-recorder -g "$geom" -f "$out"
+    kill "$outline" 2>/dev/null
+fi
+notify-send "Recording saved" "$out"

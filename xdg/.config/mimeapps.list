@@ -1,0 +1,38 @@
+# Default apps. Lists try each entry in order, so the firefox line works on
+# Fedora (org.mozilla.firefox), Arch (firefox) and Ubuntu snap (firefox_firefox).
+[Default Applications]
+inode/directory=thunar.desktop;
+text/plain=nvim.desktop;
+text/markdown=nvim.desktop;
+text/x-python=nvim.desktop;
+text/x-shellscript=nvim.desktop;
+application/json=nvim.desktop;
+application/x-yaml=nvim.desktop;
+image/png=imv-dir.desktop;imv.desktop;
+image/jpeg=imv-dir.desktop;imv.desktop;
+image/gif=imv-dir.desktop;imv.desktop;
+image/webp=imv-dir.desktop;imv.desktop;
+image/bmp=imv-dir.desktop;imv.desktop;
+image/tiff=imv-dir.desktop;imv.desktop;
+image/svg+xml=imv-dir.desktop;imv.desktop;
+video/mp4=mpv.desktop;
+video/webm=mpv.desktop;
+video/x-matroska=mpv.desktop;
+video/quicktime=mpv.desktop;
+video/x-msvideo=mpv.desktop;
+audio/mpeg=mpv.desktop;
+audio/ogg=mpv.desktop;
+audio/flac=mpv.desktop;
+audio/x-wav=mpv.desktop;
+text/html=org.mozilla.firefox.desktop;firefox.desktop;firefox_firefox.desktop;
+x-scheme-handler/http=org.mozilla.firefox.desktop;firefox.desktop;firefox_firefox.desktop;
+x-scheme-handler/https=org.mozilla.firefox.desktop;firefox.desktop;firefox_firefox.desktop;
+application/pdf=org.mozilla.firefox.desktop;firefox.desktop;firefox_firefox.desktop;
+application/zip=xarchiver.desktop;
+application/x-tar=xarchiver.desktop;
+application/gzip=xarchiver.desktop;
+application/x-compressed-tar=xarchiver.desktop;
+application/x-7z-compressed=xarchiver.desktop;
+application/x-xz-compressed-tar=xarchiver.desktop;
+application/vnd.rar=xarchiver.desktop;
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop

@@ -1,0 +1,9 @@
+[tools]
+fzf = "latest"
+go = "latest"
+node = "24"
+terraform = "latest"
+jq = "latest"
+pnpm = "latest"
+air = "latest"
+python = "3.12.3"

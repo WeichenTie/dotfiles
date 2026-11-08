@@ -1,0 +1,46 @@
+#!/bin/sh
+# Freeze the focused screen, select a region (last region is offered as a
+# clickable box), then open the cropped result in satty for drawing.
+set -u
+
+state="${XDG_CACHE_HOME:-$HOME/.cache}/screenshot-last-region"
+tmp=$(mktemp -d)
+trap 'kill "${imv_pid:-}" 2>/dev/null; rm -rf "$tmp"' EXIT
+
+# Focused output geometry (logical) and scale
+read -r out ox oy scale <<EOF
+$(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | "\(.name) \(.rect.x) \(.rect.y) \(.scale)"')
+EOF
+
+# 1. Capture the screen before anything else (keeps open menus intact)
+grim -o "$out" "$tmp/full.png" || exit 1
+
+# 2. Show the frozen image fullscreen so the selection is made over it
+imv -f -s none "$tmp/full.png" >/dev/null 2>&1 &
+imv_pid=$!
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+    swaymsg -t get_tree | grep -q '"app_id": "imv"' && break
+    sleep 0.05
+done
+sleep 0.1
+
+# 3. Select a region; the previous region is offered as a box to click
+if [ -s "$state" ]; then
+    region=$(slurp -d < "$state") || exit 0
+else
+    region=$(slurp -d < /dev/null) || exit 0
+fi
+kill "$imv_pid" 2>/dev/null
+printf '%s\n' "$region" > "$state"
+
+# 4. Crop (convert logical layout coords to image pixels)
+crop=$(echo "$region" | awk -v ox="$ox" -v oy="$oy" -v s="$scale" '{
+    split($1, p, ","); split($2, d, "x");
+    printf "%dx%d+%d+%d", d[1]*s+0.5, d[2]*s+0.5, (p[1]-ox)*s+0.5, (p[2]-oy)*s+0.5 }')
+if command -v magick >/dev/null; then im=magick; else im=convert; fi  # IM7 / IM6
+$im "$tmp/full.png" -crop "$crop" +repage "$tmp/crop.png" || exit 1
+
+# 5. Annotate
+satty --filename "$tmp/crop.png" \
+    --output-filename "$HOME/Pictures/screenshot-%Y%m%d-%H%M%S.png" \
+    --early-exit --copy-command wl-copy

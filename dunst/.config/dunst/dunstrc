@@ -1,0 +1,47 @@
+# Matches the rofi theme (rofi/.config/rofi/config.rasi)
+
+[global]
+    font = JetBrainsMono Nerd Font 10
+    width = 340
+    origin = top-right
+    offset = (12, 12)
+    gap_size = 6
+    padding = 10
+    horizontal_padding = 12
+    frame_width = 1
+    frame_color = "#3a3a3a"
+    separator_height = 0
+    corner_radius = 0
+
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    word_wrap = yes
+    ellipsize = end
+    show_age_threshold = 60
+
+    icon_position = off
+    progress_bar_height = 4
+    progress_bar_frame_width = 0
+
+    mouse_left_click = close_current
+    mouse_middle_click = do_action, close_current
+    mouse_right_click = close_all
+
+[urgency_low]
+    background = "#1b1b1b"
+    foreground = "#7c7c7c"
+    highlight = "#7c7c7c"
+    timeout = 4
+
+[urgency_normal]
+    background = "#1b1b1b"
+    foreground = "#d4d4d4"
+    highlight = "#d4d4d4"
+    timeout = 6
+
+[urgency_critical]
+    background = "#1b1b1b"
+    foreground = "#d4d4d4"
+    frame_color = "#c04a4a"
+    highlight = "#c04a4a"
+    timeout = 0

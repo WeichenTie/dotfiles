@@ -1,0 +1,11 @@
+# Laptop alone
+profile undocked {
+    output eDP-1 enable mode 2880x1920@120Hz scale 2 position 0,0
+}
+
+# Samsung on top, laptop centered underneath
+# Laptop logical width = 2880/2 = 1440 -> x = (2560-1440)/2 = 560
+profile docked {
+    output "Samsung Electric Company C27JG5x H4ZN700202" enable mode 2560x1440@143.998Hz scale 1 position 0,0
+    output eDP-1 enable mode 2880x1920@120Hz scale 2 position 560,1440
+}
